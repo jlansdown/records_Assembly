@@ -6,7 +6,11 @@
 	name: .asciiz "Name: "
 	age: .asciiz "Age: "
 	idNumber: .asciiz "idNumber: "
+	recordLine: .asciiz "Record "
+	colon: .asciiz ": "
 	newLine: .asciiz "\n"
+	#space: .asciiz " "
+	test: .asciiz " Test"
 
 
 
@@ -20,6 +24,10 @@ main:
 	la $a0, inputMessage
 	syscall
 
+	li $v0, 4
+	la $a0, newLine
+	syscall
+
 
 	addi $t0, $zero, 0
 
@@ -31,6 +39,16 @@ main:
 	addiu $sp, $sp, 4
 
 
+	addi $t0, $zero, 0
+	addi $t3, $zero, 1 #counter
+
+	#Call printArr
+	addiu $sp, $sp, -4
+	sw $ra, 0($sp)
+	jal printArr
+	lw $ra, 0($sp)
+	addiu $sp, $sp, 4
+	
 
 
 	#End of program
@@ -42,7 +60,7 @@ main:
 storeArray:
 	
 
-	#li $v0, 4
+	#li $v0, 11
 	#la $a0, newLine
 	#syscall
 	
@@ -57,9 +75,9 @@ storeArray:
 	sw $v0, records($t0)
 	addi $t0, $t0, 40
 
-	li $v0, 4
-	la $a0, age
-	syscall
+	#li $v0, 4
+	#la $a0, age
+	#syscall
 
 	#Read Age int 4 bytes
 	li $v0, 5
@@ -67,9 +85,9 @@ storeArray:
 	sw $v0, records($t0)
 	addi $t0, $t0, 4
 
-	li $v0, 4
-	la $a0, idNumber
-	syscall
+	#li $v0, 4
+	#la $a0, idNumber
+	#syscall
 
 	#Read ID # int 4 bytes
 	li $v0, 5
@@ -77,11 +95,65 @@ storeArray:
 	sw $v0, records($t0)
 	addi $t0, $t0, 4
 
-	blt $t0, 480, storeArray
+	blt $t0, 96, storeArray
 	addi $zero, $zero, 0
 
 	jr $ra
 
+printArr:
+
+	li $v0, 4
+	la $a0, recordLine
+	syscall
+
+	li $v0, 1
+	move $a0, $t3   #test word
+	syscall
+
+	li $v0, 4
+	la $a0, colon
+	syscall
+
+	li $v0, 11
+	lw $a0, records($t0)
+	syscall
+ 	
+ 	#print space
+	li $v0, 11
+	la $a0, 32
+	syscall
+
+	addi $t0, $t0, 40
+
+
+	li $v0, 1
+	lw $a0, records($t0)
+	syscall
+
+	addi $t0, $t0, 4
+
+	li $v0, 11
+	la $a0, 32  #print space char
+	syscall
+
+
+	li $v0, 1
+	lw $a0, records($t0)
+	syscall
+
+	addi $t0, $t0, 4
+
+	li $v0, 11
+	la $a0, 13
+	syscall
+
+
+	addi $t3, $t3, 1
+
+
+	blt $t0, 96, printArr
+	jr $ra
+	###########################
 
 
 
