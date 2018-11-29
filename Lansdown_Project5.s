@@ -2,13 +2,16 @@
 
 	.align 2
 	records: .space 480 		#2 ints
-	tempArr: .space 40
+	tempArr: .space 48
 	inputMessage: .asciiz "Enter in the name, age and ID for 10 students please: "
 	name: .asciiz "Name: "
 	age: .asciiz "Age: "
 	idNumber: .asciiz "idNumber: "
 	recordLine: .asciiz "Record "
 	colon: .asciiz ": "
+	menu: .asciiz " \nMenu\n1) Swap two records.\n2) Exit\nPlease choose one of the above options: "
+	prompt1: .asciiz "Which record do you select first? " 
+	prompt2: .asciiz "Which record do you want to swap it with? "	
 
 
 .text
@@ -48,13 +51,32 @@ main:
 	jal printArr
 	lw $ra, 0($sp)
 	addiu $sp, $sp, 4
-	
+
+	displayMenu:
+		
+		li $v0, 4
+ 		la $a0, menu  #Print menu asciiz
+ 		syscall
+
+		li $v0, 5
+		syscall
+
+		move $t0, $v0
+
+		#Initialize values
+		li $t1, 1
+		li $t2, 2
+
+		beq $t0, $t1, swap
+		beq $t0, $t2, exit
+
+		bne $t0, $zero, displayMenu
 
 
+	exit:
 	#End of program
 	li $v0, 10
 	syscall
-
 
 
 #STORE ARRAY - Subroutine
@@ -66,6 +88,17 @@ storeArray:
 	la $a0, tempArr
 	li $a1, 40
 	syscall
+
+	li $a3, '\n'
+
+	deleteNewLine:
+		beqz $a1, exitNewLine
+		subu $a1, $a1, 1
+		lb $a2, tempArr($a1)
+		bne $a2, $a3, deleteNewLine
+		li $a3, 0
+		sb $a3, tempArr($a1)
+	exitNewLine:
 
 		#initialize tempArr index to 0
 		addi $t3, $zero, 0
@@ -196,4 +229,49 @@ printArr:
 
 
 
+swap:
+	
+	li $v0, 4
+	la $a0, prompt1
+	syscall
+
+	li $v0, 5
+	syscall
+	move $t5, $v0
+
+	li $v0, 4
+	la $a0, prompt2
+	syscall
+
+	li $v0, 5
+	syscall
+	move $t6, $v0
+
+	#New Line
+	li $v0, 11
+	la $a0, 13
+	syscall
+
+
+
+	#SWAP HERE
+	
+
+
+
+
+	#Initialize records array to 0
+	addi $t0, $zero, 0
+
+	#Conter for record number display
+	addi $t3, $zero, 1 
+
+	#Call printArr
+	addiu $sp, $sp, -4
+	sw $ra, 0($sp)
+	jal printArr
+	lw $ra, 0($sp)
+	addiu $sp, $sp, 4
+	
+	j displayMenu
 
