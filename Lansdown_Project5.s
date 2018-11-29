@@ -8,10 +8,6 @@
 	idNumber: .asciiz "idNumber: "
 	recordLine: .asciiz "Record "
 	colon: .asciiz ": "
-	newLine: .asciiz "\n"
-	#space: .asciiz " "
-	test: .asciiz " Test"
-
 
 
 .text
@@ -56,28 +52,27 @@ main:
 	syscall
 
 
+
 #STORE ARRAY - Subroutine
 storeArray:
-	
 
-	#li $v0, 11
-	#la $a0, newLine
-	#syscall
-	
-	#li $v0, 4
-	#la $a0, name
-	#syscall
-
-	#Read Name string 40 bytes
+############Read Name string 40 bytes --- Needs to be done with loop to char array
 		
 	li $v0, 8
 	syscall
 	sw $v0, records($t0)
 	addi $t0, $t0, 40
 
-	#li $v0, 4
-	#la $a0, age
-	#syscall
+
+	
+
+
+
+
+
+
+#######################################
+	
 
 	#Read Age int 4 bytes
 	li $v0, 5
@@ -85,9 +80,6 @@ storeArray:
 	sw $v0, records($t0)
 	addi $t0, $t0, 4
 
-	#li $v0, 4
-	#la $a0, idNumber
-	#syscall
 
 	#Read ID # int 4 bytes
 	li $v0, 5
@@ -95,10 +87,12 @@ storeArray:
 	sw $v0, records($t0)
 	addi $t0, $t0, 4
 
-	blt $t0, 96, storeArray
+	blt $t0, 96, storeArray ###############change t0 480 for final
 	addi $zero, $zero, 0
 
 	jr $ra
+
+
 
 printArr:
 
@@ -114,6 +108,8 @@ printArr:
 	la $a0, colon
 	syscall
 
+
+ ##########Print Name###################
 	li $v0, 11
 	lw $a0, records($t0)
 	syscall
@@ -126,6 +122,17 @@ printArr:
 	addi $t0, $t0, 40
 
 
+
+
+
+
+
+
+
+
+###########################################
+
+	#Print age
 	li $v0, 1
 	lw $a0, records($t0)
 	syscall
@@ -137,23 +144,26 @@ printArr:
 	syscall
 
 
+	#Print ID Number
 	li $v0, 1
 	lw $a0, records($t0)
 	syscall
 
 	addi $t0, $t0, 4
 
+	#Print Newline
 	li $v0, 11
 	la $a0, 13
 	syscall
 
 
+	#Increment record counter
 	addi $t3, $t3, 1
 
 
-	blt $t0, 96, printArr
+	blt $t0, 96, printArr     ###############change t0 480 for final
 	jr $ra
-	###########################
+	
 
 
 
