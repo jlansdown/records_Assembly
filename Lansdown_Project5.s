@@ -1,8 +1,8 @@
 .data
 
 	.align 2
-	records: .space 480 		#2 ints
-	tempArr: .space 48
+	records: .space 480 		# 10 * (2 ints + 40 spaces for char)
+	tempArr: .space 48			# For swaps
 	inputMessage: .asciiz "Enter in the name, age and ID for 10 students please: "
 	name: .asciiz "Name: "
 	age: .asciiz "Age: "
@@ -11,7 +11,8 @@
 	colon: .asciiz ": "
 	menu: .asciiz " \nMenu\n1) Swap two records.\n2) Exit\nPlease choose one of the above options: "
 	prompt1: .asciiz "Which record do you select first? " 
-	prompt2: .asciiz "Which record do you want to swap it with? "	
+	prompt2: .asciiz "Which record do you want to swap it with? "
+	exitMessage: .asciiz "SEE YOU SPACE COWBOY..."
 
 
 .text
@@ -67,14 +68,27 @@ main:
 		li $t1, 1
 		li $t2, 2
 
-		beq $t0, $t1, swap
+		beq $t0, $t1, swapJump
 		beq $t0, $t2, exit
+
+		swapJump:
+			addiu $sp, $sp, -4
+			sw $ra, 0($sp)
+			jal swap
+			lw $ra, 0($sp)
+			addiu $sp, $sp, 4
+
 
 		bne $t0, $zero, displayMenu
 
 
 	exit:
 	#End of program
+	li $v0, 4
+	la $a0, exitMessage
+	syscall
+
+
 	li $v0, 10
 	syscall
 
@@ -142,7 +156,7 @@ storeArray:
 	#increment to beginning of new struct
 	addi $t0, $t0, 4
 
-	blt $t0, 96, storeArray ###############change t0 480 for final
+	blt $t0, 480, storeArray ###############change t0 480 for final
 
 	jr $ra
 
@@ -222,7 +236,7 @@ printArr:
 	addi $t3, $t3, 1
 
 
-	blt $t0, 96, printArr     ###############change t0 480 for final
+	blt $t0, 480, printArr     ###############change t0 480 for final
 	jr $ra
 	
 
@@ -254,12 +268,13 @@ swap:
 	la $a0, 13
 	syscall
 
+	#Reduce by 1 for user input
 	addi $t0, $t0, -1
 	addi $t1, $t1, -1
 
 	li $t5,48
 	mult $t0, $t5
-	mflo $0
+	mflo $t0
 
 	mult $t1, $t5
 	mflo $t1
@@ -268,23 +283,28 @@ swap:
 	#$t0 first record $t1 second record
 	addi $t2, $zero, 0
 
+	swapChars:
+		#Store first into tempArr
+		lb $t3, records($t0)
+		sb $t3, tempArr($t2)
 
-	#Store first into tempArr
-	lb $t3, records($t0)
-	sb $t3, tempArr($t2)
+		#Store second into first
+		lb $t3, records($t1)
+		sb $t3, records($t0)
 
-	#Store second into first
-	lb $t3, records($t1)
-	sb $t3, records($t0)
+		#Store tempArr into Second
+		lb $t3, tempArr($t2)
+		sb $t3, records($t1)
 
-	#Store tempArr into Second
-	lb $t3, tempArr($t2)
-	sb $t3, records($t1)
+		#first int
+		addi $t0, $t0, 1
+		addi $t1, $t1, 1
+		addi $t2, $t2, 1
+		beq $t2, 40, exitSwap
+		j swapChars
+	
 
-	#first int
-	addi $t0, $zero, 44
-	addi $t1, $zero, 44
-	addi $t2, $zero, 44
+	exitSwap:
 
 	lw $t3, records($t0)
 	sw $t3, tempArr($t2)
@@ -296,9 +316,19 @@ swap:
 	lw $t3, tempArr($t2)
 	sw $t3, records($t1)
 
+	addi $t0, $t0, 4
+	addi $t1, $t1, 4
+	addi $t2, $t2, 4
 
+	lw $t3, records($t0)
+	sw $t3, tempArr($t2)
 
+	
+	lw $t3, records($t1)
+	sw $t3, records($t0)
 
+	lw $t3, tempArr($t2)
+	sw $t3, records($t1)
 
 
 	#Initialize records array to 0
@@ -314,5 +344,5 @@ swap:
 	lw $ra, 0($sp)
 	addiu $sp, $sp, 4
 	
-	j displayMenu
+	jr $ra
 
