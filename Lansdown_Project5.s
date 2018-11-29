@@ -235,27 +235,68 @@ swap:
 	la $a0, prompt1
 	syscall
 
+	#Store choice 1 in $t0
 	li $v0, 5
 	syscall
-	move $t5, $v0
+	move $t0, $v0
 
 	li $v0, 4
 	la $a0, prompt2
 	syscall
 
+	#Store choice 2 in $t1
 	li $v0, 5
 	syscall
-	move $t6, $v0
+	move $t1, $v0
 
 	#New Line
 	li $v0, 11
 	la $a0, 13
 	syscall
 
+	addi $t0, $t0, -1
+	addi $t1, $t1, -1
 
+	li $t5,48
+	mult $t0, $t5
+	mflo $0
+
+	mult $t1, $t5
+	mflo $t1
 
 	#SWAP HERE
+	#$t0 first record $t1 second record
+	addi $t2, $zero, 0
+
+
+	#Store first into tempArr
+	lb $t3, records($t0)
+	sb $t3, tempArr($t2)
+
+	#Store second into first
+	lb $t3, records($t1)
+	sb $t3, records($t0)
+
+	#Store tempArr into Second
+	lb $t3, tempArr($t2)
+	sb $t3, records($t1)
+
+	#first int
+	addi $t0, $zero, 44
+	addi $t1, $zero, 44
+	addi $t2, $zero, 44
+
+	lw $t3, records($t0)
+	sw $t3, tempArr($t2)
+
 	
+	lw $t3, records($t1)
+	sw $t3, records($t0)
+
+	lw $t3, tempArr($t2)
+	sw $t3, records($t1)
+
+
 
 
 
